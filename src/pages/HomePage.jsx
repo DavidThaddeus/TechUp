@@ -1,13 +1,18 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import bannerImage from '../TechUp images/techBg3.jpg';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-// Register the ScrollTrigger plugin
-gsap.registerPlugin(ScrollTrigger);
+import { Link, useLocation } from 'react-router-dom';
+import bannerImage from '../TechUp_images/techBg3.jpg';
+import podcastImage from '../TechUp_images/podcast.jpg';
+import podcast2Image from '../TechUp_images/podcast2.jpg';
+import teamimg1 from '../TechUp_images/teamimg1.jpeg';
+import teamImg4 from '../TechUp_images/teamImg4.png';
+import teamimg2 from '../TechUp_images/teamimg2.jpeg';
+import teamimg3 from '../TechUp_images/teamimg3.jpeg';
+import teamImg5 from '../TechUp_images/teamImg5.jpg';
+import davidImg from '../TechUp_images/davidImg.jpg';
+import teamImg6 from '../TechUp_images/teamImg6.jpg';
 
 function HomePage() {
+  const location = useLocation();
   const initiativesRef = useRef(null);
   const boxesRef = useRef([]);
   const podcastsRef = useRef(null);
@@ -18,87 +23,66 @@ function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
+  
+  // Effect to handle scrolling to podcasts section when navigated from initiatives page
+  useEffect(() => {
+    if (location.state?.scrollToPodcasts && podcastsRef.current) {
+      setTimeout(() => {
+        podcastsRef.current.scrollIntoView({ behavior: 'smooth' });
+      }, 500); // Small delay to ensure the page is fully loaded
+    }
+  }, [location.state]);
 
   // Minimum swipe distance (in px)
   const minSwipeDistance = 50;
 
-  // Separate useEffect for initiatives and podcasts
+  // Simplified useEffect without animations
   useEffect(() => {
-    // Animation for initiative boxes
-    boxesRef.current.forEach((box, index) => {
-      gsap.fromTo(
-        box,
-        { y: 80, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.7,
-          ease: "back.out(1.2)",
-          scrollTrigger: {
-            trigger: initiativesRef.current,
-            start: "top 75%",
-            toggleActions: "play none none reset",
-            markers: false
-          },
-          delay: index * 0.15
-        }
-      );
-    });
-
-    // Animation for podcast boxes
-    podcastBoxesRef.current.forEach((box, index) => {
-      gsap.fromTo(
-        box,
-        { y: 80, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.7,
-          ease: "back.out(1.2)",
-          scrollTrigger: {
-            trigger: podcastsRef.current,
-            start: "top 75%",
-            toggleActions: "play none none reset",
-            markers: false
-          },
-          delay: index * 0.15
-        }
-      );
-    });
-
-    // Cleanup function for scroll triggers
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
-  }, []); // Empty dependency array - run once on mount
-
-  // Separate useEffect for team animations
-  useEffect(() => {
-    const refs = window.innerWidth < 768 ? mobileTeamBoxesRef.current : teamBoxesRef.current;
-
-    // Kill any existing animations first
-    refs.forEach(box => {
+    // Make all boxes visible immediately
+    boxesRef.current.forEach((box) => {
       if (box) {
-        gsap.killTweensOf(box);
+        box.style.opacity = 1;
+        box.style.transform = 'translateY(0)';
       }
     });
+
+    // Make all podcast boxes visible immediately
+    podcastBoxesRef.current.forEach((box) => {
+      if (box) {
+        box.style.opacity = 1;
+        box.style.transform = 'translateY(0)';
+      }
+    });
+
+    // No cleanup needed
+  }, []); // Empty dependency array - run once on mount
+
+  // Simplified useEffect for team animations
+  useEffect(() => {
+    const refs = window.innerWidth < 768 ? mobileTeamBoxesRef.current : teamBoxesRef.current;
     
-    // Position all boxes initially
+    // Position all boxes with simple style changes
     refs.forEach((box, index) => {
       if (!box) return;
       
-      // Set initial positions for all boxes
+      // Set positions for all boxes
       if (index === currentSlide) {
-        gsap.set(box, { x: '0%', opacity: 1, zIndex: 3 });
+        box.style.transform = 'translateX(0%)';
+        box.style.opacity = 1;
+        box.style.zIndex = 3;
       } else if (index < currentSlide) {
-        gsap.set(box, { x: '-100%', opacity: 0, zIndex: 1 });
+        box.style.transform = 'translateX(-100%)';
+        box.style.opacity = 0;
+        box.style.zIndex = 1;
       } else {
-        gsap.set(box, { x: '100%', opacity: 0, zIndex: 1 });
+        box.style.transform = 'translateX(100%)';
+        box.style.opacity = 0;
+        box.style.zIndex = 1;
       }
     });
   }, [currentSlide]);
 
-  // Carousel navigation functions
+  // Simplified carousel navigation functions
   const nextSlide = useCallback(() => {
     const refs = window.innerWidth < 768 ? mobileTeamBoxesRef.current : teamBoxesRef.current;
     if (!refs[currentSlide]) return;
@@ -106,37 +90,7 @@ function HomePage() {
     const maxSlide = teamMembers.length - 1;
     const nextIndex = currentSlide >= maxSlide ? 0 : currentSlide + 1;
     
-    // Prepare the next slide
-    if (refs[nextIndex]) {
-      gsap.set(refs[nextIndex], {
-        x: '100%',
-        opacity: 0,
-        zIndex: 2
-      });
-    }
-    
-    // Animate current slide out to the left
-    gsap.to(refs[currentSlide], {
-      x: '-100%',
-      opacity: 0,
-      duration: 1.2,
-      ease: "power3.inOut",
-      onComplete: () => {
-        gsap.set(refs[currentSlide], { zIndex: 1 });
-      }
-    });
-    
-    // Animate next slide in from the right
-    if (refs[nextIndex]) {
-      gsap.to(refs[nextIndex], {
-        x: '0%',
-        opacity: 1,
-        duration: 1.2,
-        ease: "power3.inOut"
-      });
-    }
-    
-    // Update current slide
+    // Simply update the current slide - the useEffect will handle the UI
     setCurrentSlide(nextIndex);
   }, [currentSlide]);
 
@@ -147,37 +101,7 @@ function HomePage() {
     const maxSlide = teamMembers.length - 1;
     const prevIndex = currentSlide <= 0 ? maxSlide : currentSlide - 1;
     
-    // Prepare the previous slide
-    if (refs[prevIndex]) {
-      gsap.set(refs[prevIndex], {
-        x: '-100%',
-        opacity: 0,
-        zIndex: 2
-      });
-    }
-    
-    // Animate current slide out to the right
-    gsap.to(refs[currentSlide], {
-      x: '100%',
-      opacity: 0,
-      duration: 1.2,
-      ease: "power3.inOut",
-      onComplete: () => {
-        gsap.set(refs[currentSlide], { zIndex: 1 });
-      }
-    });
-    
-    // Animate previous slide in from the left
-    if (refs[prevIndex]) {
-      gsap.to(refs[prevIndex], {
-        x: '0%',
-        opacity: 1,
-        duration: 1.2,
-        ease: "power3.inOut"
-      });
-    }
-    
-    // Update current slide
+    // Simply update the current slide - the useEffect will handle the UI
     setCurrentSlide(prevIndex);
   }, [currentSlide]);
 
@@ -218,8 +142,7 @@ function HomePage() {
         <img 
           src={bannerImage} 
           alt="TechUp Banner" 
-          className="w-full h-full object-cover object-center transform scale-[1.02] filter contrast-[1.05] brightness-[0.95]"
-          loading="eager"
+          className="w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/70 flex items-center justify-center">
           <div className="text-center text-white px-4 max-w-4xl">
@@ -244,7 +167,7 @@ function HomePage() {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 md:mb-16 font-montserrat">Our Initiatives</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             <div 
-              className="bg-white py-10 px-6 rounded-lg shadow-md text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:bg-blue-50 icon-pulse initiative-box cursor-pointer opacity-0"
+              className="bg-white py-10 px-6 rounded-lg shadow-md text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:bg-blue-50 icon-pulse initiative-box cursor-pointer"
               ref={el => boxesRef.current[0] = el}
             >
               <div className="text-4xl text-[#1fc9d5] mb-4"><i className="fas fa-laptop-code"></i></div>
@@ -252,7 +175,7 @@ function HomePage() {
               <p className="text-gray-600 font-raleway">Bringing technology education to schools across Africa.</p>
             </div>
             <div 
-              className="bg-white py-10 px-6 rounded-lg shadow-md text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:bg-blue-50 icon-pulse initiative-box cursor-pointer opacity-0"
+              className="bg-white py-10 px-6 rounded-lg shadow-md text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:bg-blue-50 icon-pulse initiative-box cursor-pointer"
               ref={el => boxesRef.current[1] = el}
             >
               <div className="text-4xl text-[#1fc9d5] mb-4"><i className="fas fa-podcast"></i></div>
@@ -260,7 +183,7 @@ function HomePage() {
               <p className="text-gray-600 font-raleway">Inspiring stories and insights from tech leaders.</p>
             </div>
             <div 
-              className="bg-white py-10 px-6 rounded-lg shadow-md text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:bg-blue-50 icon-pulse initiative-box cursor-pointer opacity-0"
+              className="bg-white py-10 px-6 rounded-lg shadow-md text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:bg-blue-50 icon-pulse initiative-box cursor-pointer"
               ref={el => boxesRef.current[2] = el}
             >
               <div className="text-4xl text-[#1fc9d5] mb-4"><i className="fas fa-code"></i></div>
@@ -268,7 +191,7 @@ function HomePage() {
               <p className="text-gray-600 font-raleway">Intensive training programs for in-demand tech skills.</p>
             </div>
             <div 
-              className="bg-white py-10 px-6 rounded-lg shadow-md text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:bg-blue-50 icon-pulse initiative-box cursor-pointer opacity-0"
+              className="bg-white py-10 px-6 rounded-lg shadow-md text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:bg-blue-50 icon-pulse initiative-box cursor-pointer"
               ref={el => boxesRef.current[3] = el}
             >
               <div className="text-4xl text-[#1fc9d5] mb-4"><i className="fas fa-users"></i></div>
@@ -287,7 +210,7 @@ function HomePage() {
       </section>
 
       {/* Podcast Series Section - original version */}
-      <section className="py-12 sm:py-16 md:py-20 bg-gray-100" ref={podcastsRef}>
+      <section id="podcasts" className="py-12 sm:py-16 md:py-20 bg-gray-100" ref={podcastsRef}>
         <div className="container mx-auto px-4">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 md:mb-16 font-montserrat">Our Podcast Series</h2>
           <p className="text-base md:text-lg text-center mb-8 sm:mb-12 max-w-3xl mx-auto font-raleway">
@@ -296,16 +219,16 @@ function HomePage() {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             <div 
-              className="block opacity-0"
+              className="block"
               ref={el => podcastBoxesRef.current[0] = el}
             >
               <div className="bg-white rounded-lg shadow-lg overflow-hidden animate-float h-full">
                 <div className="w-full px-4 sm:px-6 pt-4 sm:pt-6 flex justify-center">
                   <div className="w-full overflow-hidden">
                     <img 
-                      src="/src/TechUp images/podcast.jpg" 
+                      src={podcastImage} 
                       alt="Integrating Tech Incline Policy Into Traditionnal Educational System" 
-                      className="w-full transition-transform duration-500 hover:scale-110 transform"
+                      className="w-full"
                     />
                   </div>
                 </div>
@@ -327,16 +250,16 @@ function HomePage() {
             </div>
             
             <div 
-              className="block opacity-0"
+              className="block"
               ref={el => podcastBoxesRef.current[1] = el}
             >
               <div className="bg-white rounded-lg shadow-lg overflow-hidden animate-float h-full" style={{animationDelay: '0.2s'}}>
                 <div className="w-full px-4 sm:px-6 pt-4 sm:pt-6 flex justify-center">
                   <div className="w-full overflow-hidden">
                     <img 
-                      src="/src/TechUp images/podcast2.jpg" 
+                      src={podcast2Image} 
                       alt="The Future Of Work" 
-                      className="w-full transition-transform duration-500 hover:scale-110 transform"
+                      className="w-full"
                     />
                   </div>
                 </div>
@@ -358,16 +281,16 @@ function HomePage() {
             </div>
 
             <div 
-              className="block opacity-0"
+              className="block"
               ref={el => podcastBoxesRef.current[2] = el}
             >
               <div className="bg-white rounded-lg shadow-lg overflow-hidden animate-float h-full" style={{animationDelay: '0.4s'}}>
                 <div className="w-full px-4 sm:px-6 pt-4 sm:pt-6 flex justify-center">
                   <div className="w-full overflow-hidden">
                     <img 
-                      src="/src/TechUp images/podcast.jpg" 
+                      src={podcastImage} 
                       alt="Understanding Tech Entrepreneurship" 
-                      className="w-full transition-transform duration-500 hover:scale-110 transform"
+                      className="w-full"
                     />
                   </div>
                 </div>
@@ -434,7 +357,7 @@ function HomePage() {
                       loading="eager"
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = "/src/TechUp images/placeholder.jpg";
+                        e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%236b7280' font-family='Arial, sans-serif' font-size='14'%3EImage not found%3C/text%3E%3C/svg%3E";
                       }}
                     />
                     <h3 className="text-3xl font-bold mb-3 font-montserrat">{member.name}</h3>
@@ -502,7 +425,7 @@ function HomePage() {
                       loading="eager"
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = "/src/TechUp images/placeholder.jpg";
+                        e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%236b7280' font-family='Arial, sans-serif' font-size='14'%3EImage not found%3C/text%3E%3C/svg%3E";
                       }}
                     />
                     <h3 className="text-xl sm:text-2xl font-bold mb-3 font-montserrat">{member.name}</h3>
@@ -586,44 +509,51 @@ const teamMembers = [
   {
     name: "Mercy Thaddeus",
     role: "Co-Founder",
-    image: "/src/TechUp images/teamimg1.jpeg",
+    image: teamimg1,
     twitter: "https://twitter.com/mercythaddeus",
     linkedin: "https://linkedin.com/in/mercythaddeus"
   },
   {
-    name: "Boluwatife Ebenezer",
-    role: "Co-Founder",
-    image: "/src/TechUp images/teamImg4.png",
+    name: "Boluwatife (Ebenezer) Majoyeogbe",
+    role: "Founder",
+    image: teamImg4,
     twitter: "https://twitter.com/boluwatifeebenezer",
     linkedin: "https://linkedin.com/in/boluwatifeebenezer"
   },
   {
-    name: "John Toluwalope",
-    role: "Content Creator",
-    image: "/src/TechUp images/teamimg2.jpeg",
+    name: "Daniel Abidoye",
+    role: "Designer",
+    image: teamimg2,
     twitter: "https://twitter.com/johntoluwalope",
     linkedin: "https://linkedin.com/in/johntoluwalope"
   },
   {
     name: "Toluwalope Idowu",
     role: "Project Manager",
-    image: "/src/TechUp images/teamimg3.jpeg",
+    image: teamimg3,
     twitter: "https://twitter.com/toluwalopeidowu",
     linkedin: "https://linkedin.com/in/toluwalopeidowu"
   },
   {
-    name: "Blessing Faith",
-    role: "Project Manager",
-    image: "/src/TechUp images/teamimg5.jpg",
+    name: "Shukurat Akanbi",
+    role: "Program Coordinator",
+    image: teamImg5,
     twitter: "https://twitter.com/blessingfaith",
     linkedin: "https://linkedin.com/in/blessingfaith"
   },
   {
     name: "David Thaddeus",
-    role: "Frontend Developer",
-    image: "/src/TechUp images/davidImg.jpg",
+    role: "Software Developer",
+    image: davidImg,
     twitter: "https://twitter.com/davidthaddeus",
     linkedin: "https://linkedin.com/in/davidthaddeus"
+  },
+  {
+    name: "Esther Afolabi",
+    role: "Social Media Manager",
+    image: teamImg6,
+    twitter: "https://twitter.com/estherafolabi",
+    linkedin: "https://linkedin.com/in/estherafolabi"
   }
 ];
 

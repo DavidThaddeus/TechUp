@@ -1,10 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import bannerImage from '../TechUp images/techUpBg3.jpeg';
-
-// Register ScrollTrigger plugin
-gsap.registerPlugin(ScrollTrigger);
+import bannerImage from '../TechUp_images/techUpBg3.jpeg';
 
 function AboutPage() {
   const statsRef = useRef(null);
@@ -13,66 +8,28 @@ function AboutPage() {
   const valuesRef = useRef(null);
 
   useEffect(() => {
-    // Animate sections on scroll
-    gsap.fromTo(
-      missionRef.current,
-      { opacity: 0, y: 50 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        scrollTrigger: {
-          trigger: missionRef.current,
-          start: "top 80%",
-          toggleActions: "play none none reset"
-        }
-      }
-    );
+    // Make all sections visible immediately
+    if (missionRef.current) {
+      missionRef.current.style.opacity = 1;
+      missionRef.current.style.transform = 'translateY(0)';
+    }
+    
+    if (visionRef.current) {
+      visionRef.current.style.opacity = 1;
+      visionRef.current.style.transform = 'translateY(0)';
+    }
+    
+    if (valuesRef.current) {
+      valuesRef.current.style.opacity = 1;
+      valuesRef.current.style.transform = 'translateY(0)';
+    }
 
-    gsap.fromTo(
-      visionRef.current,
-      { opacity: 0, y: 50 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        scrollTrigger: {
-          trigger: visionRef.current,
-          start: "top 80%",
-          toggleActions: "play none none reset"
-        }
-      }
-    );
-
-    gsap.fromTo(
-      valuesRef.current,
-      { opacity: 0, y: 50 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        scrollTrigger: {
-          trigger: valuesRef.current,
-          start: "top 80%",
-          toggleActions: "play none none reset"
-        }
-      }
-    );
-
-    // Animate stats with counter effect
+    // Set stat numbers directly without animation
     if (statsRef.current) {
       const statElements = statsRef.current.querySelectorAll('.stat-number');
       statElements.forEach(stat => {
         const target = parseInt(stat.getAttribute('data-target'));
-        gsap.to(stat, {
-          innerHTML: target,
-          duration: 2,
-          snap: { innerHTML: 1 },
-          scrollTrigger: {
-            trigger: statsRef.current,
-            start: "top 80%"
-          }
-        });
+        stat.innerHTML = target;
       });
     }
   }, []);
@@ -84,8 +41,7 @@ function AboutPage() {
         <img 
           src={bannerImage} 
           alt="TechUp About Banner" 
-          className="w-full h-full object-cover object-center transform scale-[1.02] filter contrast-[1.05] brightness-[0.95]"
-          loading="eager"
+          className="w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/70 flex items-center justify-center">
           <div className="text-center text-white px-4 max-w-4xl">
@@ -143,7 +99,7 @@ function AboutPage() {
               <span className="absolute -bottom-2 left-0 w-16 h-0.5 bg-gradient-to-r from-[#1fc9d5] to-[#19b6c1]"></span>
             </h2>
             <p className="text-base mb-6 text-gray-700 leading-relaxed font-raleway">
-              At TechUp, we are committed to promoting tech skill-education and preparing the young once for the challenges and opportunities of the technological age. Our mission aligns closely with Sustainable Development Goal 8 - Decent Work and Economic Growth, as well as SDG 4 - Quality Education. We are on a mission to <span className="font-semibold text-[#1fc9d5]">'Empower the Next Generation of Tech Leaders'</span>.
+              At TechUp, we are committed to promoting tech skill-education and preparing the young ones for the challenges and opportunities of the technological age. Our mission aligns closely with Sustainable Development Goal 8 - Decent Work and Economic Growth, as well as SDG 4 - Quality Education. We are on a mission to <span className="font-semibold text-[#1fc9d5]">'Empower the Next Generation of Tech Leaders'</span>.
             </p>
           </div>
           

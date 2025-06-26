@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import logo from '../TechUp images/logo.jpg';
-import tourImg1 from '../TechUp images/tourImg1.jpg';
-import tourImg2 from '../TechUp images/tourImg2.png';
-import tourImg3 from '../TechUp images/tourImg3.png';
-import tourImg5 from '../TechUp images/tourImg5.png';
+import logo from '../TechUp_images/logo.jpg';
+import tourImg1 from '../TechUp_images/tourImg1.jpg';
+import tourImg2 from '../TechUp_images/tourImg2.png';
+import tourImg3 from '../TechUp_images/tourImg3.png';
+import tourImg5 from '../TechUp_images/tourImg5.png';
 
 function ImpactPage() {
   const navigate = useNavigate();

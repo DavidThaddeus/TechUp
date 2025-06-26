@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import logo from '../TechUp images/logo.jpg';
+import logo from '../TechUp_images/logo.jpg';
 import './Header.css';
 
 function Header() {
