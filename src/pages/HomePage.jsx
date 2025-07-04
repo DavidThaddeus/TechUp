@@ -1,8 +1,11 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import bannerImage from '../TechUp_images/techBg3.jpg';
 import podcastImage from '../TechUp_images/podcast.jpg';
 import podcast2Image from '../TechUp_images/podcast2.jpg';
+import podcast3Image from '../TechUp_images/podcast3.jpg';
+import podcast4Image from '../TechUp_images/podcast4.jpg';
+import podcast1Image from '../TechUp_images/podcast1.jpg';
 import teamimg1 from '../TechUp_images/teamimg1.jpeg';
 import teamImg4 from '../TechUp_images/teamImg4.png';
 import teamimg2 from '../TechUp_images/teamimg2.jpeg';
@@ -10,6 +13,40 @@ import teamimg3 from '../TechUp_images/teamimg3.jpeg';
 import teamImg5 from '../TechUp_images/teamImg5.jpg';
 import davidImg from '../TechUp_images/davidImg.jpg';
 import teamImg6 from '../TechUp_images/teamImg6.jpg';
+
+// Podcast data
+const podcastData = [
+  {
+    title: "Integrating Tech Incline Policy Into Traditional Educational System",
+    description: "Exploring how technology policies can be effectively integrated into traditional education systems across Africa.",
+    image: podcastImage,
+    link: "https://anchor.fm/techup9/episodes/Integrating-Tech-incline-Policy-into-the-Traditional-Education-system-e2d45ef"
+  },
+  {
+    title: "The Future Of Work",
+    description: "Examining how technology is reshaping careers and workplace dynamics in the digital age.",
+    image: podcast2Image,
+    link: "https://anchor.fm/techup9/episodes/TechUp-Series-Future-of-work-e2a268u"
+  },
+  {
+    title: "New Generation Skills and Possible Threat",
+    description: "Exploring emerging technologies and their potential impact on the future workforce.",
+    image: podcast4Image,
+    link: "https://rb.gy/f9mi65"
+  },
+  {
+    title: "Building A Career In Tech",
+    description: "Strategies and insights for developing a successful career in the technology industry.",
+    image: podcast1Image,
+    link: "https://x.com/TechUp_office/status/1841208406322921624"
+  },
+  {
+    title: "Mastering your tech career",
+    description: "Advanced strategies for growth and development in the technology sector.",
+    image: podcast3Image,
+    link: "https://x.com/i/spaces/1djGXrRBAovxZ"
+  }
+];
 
 function HomePage() {
   const location = useLocation();
@@ -20,7 +57,8 @@ function HomePage() {
   const teamRef = useRef(null);
   const teamBoxesRef = useRef([]);
   const mobileTeamBoxesRef = useRef([]);
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentTeamSlide, setCurrentTeamSlide] = useState(0);
+  const [currentPodcastSlide, setCurrentPodcastSlide] = useState(0);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
   
@@ -46,14 +84,6 @@ function HomePage() {
       }
     });
 
-    // Make all podcast boxes visible immediately
-    podcastBoxesRef.current.forEach((box) => {
-      if (box) {
-        box.style.opacity = 1;
-        box.style.transform = 'translateY(0)';
-      }
-    });
-
     // No cleanup needed
   }, []); // Empty dependency array - run once on mount
 
@@ -66,11 +96,11 @@ function HomePage() {
       if (!box) return;
       
       // Set positions for all boxes
-      if (index === currentSlide) {
+      if (index === currentTeamSlide) {
         box.style.transform = 'translateX(0%)';
         box.style.opacity = 1;
         box.style.zIndex = 3;
-      } else if (index < currentSlide) {
+      } else if (index < currentTeamSlide) {
         box.style.transform = 'translateX(-100%)';
         box.style.opacity = 0;
         box.style.zIndex = 1;
@@ -80,36 +110,83 @@ function HomePage() {
         box.style.zIndex = 1;
       }
     });
-  }, [currentSlide]);
-
-  // Simplified carousel navigation functions
-  const nextSlide = useCallback(() => {
-    const refs = window.innerWidth < 768 ? mobileTeamBoxesRef.current : teamBoxesRef.current;
-    if (!refs[currentSlide]) return;
-    
-    const maxSlide = teamMembers.length - 1;
-    const nextIndex = currentSlide >= maxSlide ? 0 : currentSlide + 1;
-    
-    // Simply update the current slide - the useEffect will handle the UI
-    setCurrentSlide(nextIndex);
-  }, [currentSlide]);
-
-  const prevSlide = useCallback(() => {
-    const refs = window.innerWidth < 768 ? mobileTeamBoxesRef.current : teamBoxesRef.current;
-    if (!refs[currentSlide]) return;
-    
-    const maxSlide = teamMembers.length - 1;
-    const prevIndex = currentSlide <= 0 ? maxSlide : currentSlide - 1;
-    
-    // Simply update the current slide - the useEffect will handle the UI
-    setCurrentSlide(prevIndex);
-  }, [currentSlide]);
-
-  // Auto-slide effect
+  }, [currentTeamSlide]);
+  
+  // Effect for podcast carousel animations
   useEffect(() => {
-    const slideInterval = setInterval(nextSlide, 5000); // Slide every 5 seconds
+    for (let i = 0; i < podcastBoxesRef.current.length; i++) {
+      const box = podcastBoxesRef.current[i];
+      if (!box) continue;
+      
+      if (i === currentPodcastSlide) {
+        box.style.transform = 'translateX(0%)';
+        box.style.opacity = 1;
+        box.style.zIndex = 3;
+      } else if (i < currentPodcastSlide) {
+        box.style.transform = 'translateX(-100%)';
+        box.style.opacity = 0;
+        box.style.zIndex = 1;
+      } else {
+        box.style.transform = 'translateX(100%)';
+        box.style.opacity = 0;
+        box.style.zIndex = 1;
+      }
+    }
+  }, [currentPodcastSlide]);
+
+  // Simplified carousel navigation functions for team
+  const nextTeamSlide = useCallback(() => {
+    const refs = window.innerWidth < 768 ? mobileTeamBoxesRef.current : teamBoxesRef.current;
+    if (!refs[currentTeamSlide]) return;
+    
+    const maxSlide = teamMembers.length - 1;
+    const nextIndex = currentTeamSlide >= maxSlide ? 0 : currentTeamSlide + 1;
+    
+    // Simply update the current slide - the useEffect will handle the UI
+    setCurrentTeamSlide(nextIndex);
+  }, [currentTeamSlide]);
+
+  const prevTeamSlide = useCallback(() => {
+    const refs = window.innerWidth < 768 ? mobileTeamBoxesRef.current : teamBoxesRef.current;
+    if (!refs[currentTeamSlide]) return;
+    
+    const maxSlide = teamMembers.length - 1;
+    const prevIndex = currentTeamSlide <= 0 ? maxSlide : currentTeamSlide - 1;
+    
+    // Simply update the current slide - the useEffect will handle the UI
+    setCurrentTeamSlide(prevIndex);
+  }, [currentTeamSlide]);
+
+  // Podcast carousel navigation functions
+  const nextPodcastSlide = useCallback(() => {
+    if (!podcastBoxesRef.current[currentPodcastSlide]) return;
+    
+    const maxSlide = podcastData.length - 1;
+    const nextIndex = currentPodcastSlide >= maxSlide ? 0 : currentPodcastSlide + 1;
+    
+    setCurrentPodcastSlide(nextIndex);
+  }, [currentPodcastSlide]);
+
+  const prevPodcastSlide = useCallback(() => {
+    if (!podcastBoxesRef.current[currentPodcastSlide]) return;
+    
+    const maxSlide = podcastData.length - 1;
+    const prevIndex = currentPodcastSlide <= 0 ? maxSlide : currentPodcastSlide - 1;
+    
+    setCurrentPodcastSlide(prevIndex);
+  }, [currentPodcastSlide]);
+
+  // Auto-slide effect for team
+  useEffect(() => {
+    const slideInterval = setInterval(nextTeamSlide, 5000); // Slide every 5 seconds
     return () => clearInterval(slideInterval);
-  }, [nextSlide]);
+  }, [nextTeamSlide]);
+  
+  // Auto-slide effect for podcasts
+  useEffect(() => {
+    const podcastSlideInterval = setInterval(nextPodcastSlide, 6000); // Slide every 6 seconds
+    return () => clearInterval(podcastSlideInterval);
+  }, [nextPodcastSlide]);
 
   // Touch handlers for swipe functionality
   const onTouchStart = (e) => {
@@ -121,19 +198,30 @@ function HomePage() {
     setTouchEnd(e.targetTouches[0].clientX);
   };
 
-  const onTouchEnd = () => {
+  const onTouchEnd = (e, isPodcast = false) => {
     if (!touchStart || !touchEnd) return;
     
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
 
-    if (isLeftSwipe) {
-      nextSlide();
-    } else if (isRightSwipe) {
-      prevSlide();
+    if (isPodcast) {
+      if (isLeftSwipe) {
+        nextPodcastSlide();
+      } else if (isRightSwipe) {
+        prevPodcastSlide();
+      }
+    } else {
+      if (isLeftSwipe) {
+        nextTeamSlide();
+      } else if (isRightSwipe) {
+        prevTeamSlide();
+      }
     }
   };
+  
+  // Specialized touch handlers for podcast carousel
+  const onPodcastTouchEnd = (e) => onTouchEnd(e, true);
 
   return (
     <div className="pt-0"> {/* Ensure no top padding */}
@@ -209,7 +297,7 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Podcast Series Section - original version */}
+      {/* Podcast Series Section - with carousel */}
       <section id="podcasts" className="py-12 sm:py-16 md:py-20 bg-gray-100" ref={podcastsRef}>
         <div className="container mx-auto px-4">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 sm:mb-12 md:mb-16 font-montserrat">Our Podcast Series</h2>
@@ -217,100 +305,210 @@ function HomePage() {
             Listen to inspiring stories from tech leaders, entrepreneurs, and innovators from across Africa and beyond.
           </p>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            <div 
-              className="block"
-              ref={el => podcastBoxesRef.current[0] = el}
-            >
-              <div className="bg-white rounded-lg shadow-lg overflow-hidden animate-float h-full">
-                <div className="w-full px-4 sm:px-6 pt-4 sm:pt-6 flex justify-center">
-                  <div className="w-full overflow-hidden">
-                    <img 
-                      src={podcastImage} 
-                      alt="Integrating Tech Incline Policy Into Traditionnal Educational System" 
-                      className="w-full"
-                    />
+          <div className="max-w-6xl mx-auto">
+            {/* Podcast carousel */}
+            <div className="flex items-center justify-center relative max-w-sm mx-auto">
+              {/* Carousel container */}
+              <div 
+                className="relative h-[600px] w-full overflow-hidden px-6"
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onPodcastTouchEnd}
+              >
+                {/* First podcast */}
+                <div 
+                  className="absolute top-0 left-0 w-full h-full"
+                  ref={el => podcastBoxesRef.current[0] = el}
+                  style={{
+                    opacity: currentPodcastSlide === 0 ? 1 : 0,
+                    transform: currentPodcastSlide === 0 ? 'translateX(0%)' : (currentPodcastSlide > 0 ? 'translateX(-100%)' : 'translateX(100%)'),
+                    zIndex: currentPodcastSlide === 0 ? 3 : 1,
+                    transition: 'transform 0.5s ease, opacity 0.5s ease'
+                  }}
+                >
+                  <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full p-4 pb-32">
+                      <div className="h-full w-full border-4 border-[#1fc9d5] rounded-lg overflow-hidden">
+                        <img 
+                          src={podcastData[0].image} 
+                          alt={podcastData[0].title} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="mt-6 text-center">
+                        <a 
+                          href={podcastData[0].link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-block bg-[#1fc9d5] hover:bg-[#19b6c1] text-white font-bold py-3 px-8 rounded-full transition-colors shadow-lg"
+                        >
+                          Listen Now
+                        </a>
+                      </div>
                   </div>
                 </div>
-                <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 text-center">
-                  <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3 font-montserrat">Integrating Tech Incline Policy Into Traditionnal Educational System</h3>
-                  <p className="text-xs sm:text-sm text-gray-600 font-raleway">Exploring how technology policies can be effectively integrated into traditional education systems across Africa.</p>
+                
+                {/* Second podcast */}
+                <div 
+                  className="absolute top-0 left-0 w-full h-full"
+                  ref={el => podcastBoxesRef.current[1] = el}
+                  style={{
+                    opacity: currentPodcastSlide === 1 ? 1 : 0,
+                    transform: currentPodcastSlide === 1 ? 'translateX(0%)' : (currentPodcastSlide > 1 ? 'translateX(-100%)' : 'translateX(100%)'),
+                    zIndex: currentPodcastSlide === 1 ? 3 : 1,
+                    transition: 'transform 0.5s ease, opacity 0.5s ease'
+                  }}
+                >
+                  <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full p-4 pb-32">
+                      <div className="h-full w-full border-4 border-[#1fc9d5] rounded-lg overflow-hidden">
+                        <img 
+                          src={podcastData[1].image} 
+                          alt={podcastData[1].title} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="mt-6 text-center">
+                        <a 
+                          href={podcastData[1].link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-block bg-[#1fc9d5] hover:bg-[#19b6c1] text-white font-bold py-3 px-8 rounded-full transition-colors shadow-lg"
+                        >
+                          Listen Now
+                        </a>
+                      </div>
+                  </div>
                 </div>
-                <div className="px-4 sm:px-6 py-4 sm:py-6 flex justify-center bg-white">
-                  <a 
-                    href="https://rb.gy/85m640" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="liquid-button-blue bg-[#1fc9d5] hover:bg-[#19b6c1] text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md relative overflow-hidden inline-block"
-                  >
-                    <span className="relative z-10">Listen Now</span>
-                  </a>
+                
+                {/* Third podcast */}
+                <div 
+                  className="absolute top-0 left-0 w-full h-full"
+                  ref={el => podcastBoxesRef.current[2] = el}
+                  style={{
+                    opacity: currentPodcastSlide === 2 ? 1 : 0,
+                    transform: currentPodcastSlide === 2 ? 'translateX(0%)' : (currentPodcastSlide > 2 ? 'translateX(-100%)' : 'translateX(100%)'),
+                    zIndex: currentPodcastSlide === 2 ? 3 : 1,
+                    transition: 'transform 0.5s ease, opacity 0.5s ease'
+                  }}
+                >
+                  <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full p-4 pb-32">
+                      <div className="h-full w-full border-4 border-[#1fc9d5] rounded-lg overflow-hidden">
+                        <img 
+                          src={podcastData[2].image} 
+                          alt={podcastData[2].title} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="mt-6 text-center">
+                        <a 
+                          href={podcastData[2].link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-block bg-[#1fc9d5] hover:bg-[#19b6c1] text-white font-bold py-3 px-8 rounded-full transition-colors shadow-lg"
+                        >
+                          Listen Now
+                        </a>
+                      </div>
+                  </div>
+                </div>
+                
+                {/* Fourth podcast */}
+                <div 
+                  className="absolute top-0 left-0 w-full h-full"
+                  ref={el => podcastBoxesRef.current[3] = el}
+                  style={{
+                    opacity: currentPodcastSlide === 3 ? 1 : 0,
+                    transform: currentPodcastSlide === 3 ? 'translateX(0%)' : (currentPodcastSlide > 3 ? 'translateX(-100%)' : 'translateX(100%)'),
+                    zIndex: currentPodcastSlide === 3 ? 3 : 1,
+                    transition: 'transform 0.5s ease, opacity 0.5s ease'
+                  }}
+                >
+                  <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full p-4 pb-32">
+                      <div className="h-full w-full border-4 border-[#1fc9d5] rounded-lg overflow-hidden">
+                        <img 
+                          src={podcastData[3].image} 
+                          alt={podcastData[3].title} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="mt-6 text-center">
+                        <a 
+                          href={podcastData[3].link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-block bg-[#1fc9d5] hover:bg-[#19b6c1] text-white font-bold py-3 px-8 rounded-full transition-colors shadow-lg"
+                        >
+                          Listen Now
+                        </a>
+                      </div>
+                  </div>
+                </div>
+                
+                {/* Fifth podcast */}
+                <div 
+                  className="absolute top-0 left-0 w-full h-full"
+                  ref={el => podcastBoxesRef.current[4] = el}
+                  style={{
+                    opacity: currentPodcastSlide === 4 ? 1 : 0,
+                    transform: currentPodcastSlide === 4 ? 'translateX(0%)' : (currentPodcastSlide > 4 ? 'translateX(-100%)' : 'translateX(100%)'),
+                    zIndex: currentPodcastSlide === 4 ? 3 : 1,
+                    transition: 'transform 0.5s ease, opacity 0.5s ease'
+                  }}
+                >
+                  <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full p-4 pb-32">
+                      <div className="h-full w-full border-4 border-[#1fc9d5] rounded-lg overflow-hidden">
+                        <img 
+                          src={podcastData[4].image} 
+                          alt={podcastData[4].title} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="mt-6 text-center">
+                        <a 
+                          href={podcastData[4].link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-block bg-[#1fc9d5] hover:bg-[#19b6c1] text-white font-bold py-3 px-8 rounded-full transition-colors shadow-lg"
+                        >
+                          Listen Now
+                        </a>
+                      </div>
+                  </div>
                 </div>
               </div>
             </div>
             
-            <div 
-              className="block"
-              ref={el => podcastBoxesRef.current[1] = el}
-            >
-              <div className="bg-white rounded-lg shadow-lg overflow-hidden animate-float h-full" style={{animationDelay: '0.2s'}}>
-                <div className="w-full px-4 sm:px-6 pt-4 sm:pt-6 flex justify-center">
-                  <div className="w-full overflow-hidden">
-                    <img 
-                      src={podcast2Image} 
-                      alt="The Future Of Work" 
-                      className="w-full"
-                    />
-                  </div>
-                </div>
-                <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 text-center">
-                  <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3 font-montserrat">The Future Of Work</h3>
-                  <p className="text-xs sm:text-sm text-gray-600 font-raleway">Examining how technology is reshaping careers and workplace dynamics in the digital age.</p>
-                </div>
-                <div className="px-4 sm:px-6 py-4 sm:py-6 flex justify-center bg-white">
-                  <a 
-                    href="https://shorturl.at/eotR0" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="liquid-button-blue bg-[#1fc9d5] hover:bg-[#19b6c1] text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md relative overflow-hidden inline-block"
-                  >
-                    <span className="relative z-10">Listen Now</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div 
-              className="block"
-              ref={el => podcastBoxesRef.current[2] = el}
-            >
-              <div className="bg-white rounded-lg shadow-lg overflow-hidden animate-float h-full" style={{animationDelay: '0.4s'}}>
-                <div className="w-full px-4 sm:px-6 pt-4 sm:pt-6 flex justify-center">
-                  <div className="w-full overflow-hidden">
-                    <img 
-                      src={podcastImage} 
-                      alt="Understanding Tech Entrepreneurship" 
-                      className="w-full"
-                    />
-                  </div>
-                </div>
-                <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 text-center">
-                  <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3 font-montserrat">Understanding Tech Entrepreneurship</h3>
-                  <p className="text-xs sm:text-sm text-gray-600 font-raleway">Insights into building successful tech startups and navigating the entrepreneurial landscape in Africa.</p>
-                </div>
-                <div className="px-4 sm:px-6 py-4 sm:py-6 flex justify-center bg-white">
-                  <a 
-                    href="https://shorturl.at/eotR0" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="liquid-button-blue bg-[#1fc9d5] hover:bg-[#19b6c1] text-white font-bold py-2 px-6 rounded-full transition-colors shadow-md relative overflow-hidden inline-block"
-                  >
-                    <span className="relative z-10">Listen Now</span>
-                  </a>
-                </div>
-              </div>
+            {/* Navigation buttons below for podcast */}
+            <div className="flex justify-center space-x-4 mt-6 mb-4">
+              <button 
+                onClick={prevPodcastSlide} 
+                className="bg-[#1fc9d5] hover:bg-[#19b6c1] text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors shadow-md"
+                aria-label="Previous podcast"
+              >
+                <i className="fas fa-chevron-left text-lg"></i>
+              </button>
+              
+              <button 
+                onClick={nextPodcastSlide} 
+                className="bg-[#1fc9d5] hover:bg-[#19b6c1] text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors shadow-md"
+                aria-label="Next podcast"
+              >
+                <i className="fas fa-chevron-right text-lg"></i>
+              </button>
             </div>
             
+            {/* Carousel indicators */}
+            <div className="flex justify-center mt-6 space-x-2">
+              {podcastData.map((_, index) => (
+                <button
+                  key={`podcast-indicator-${index}`}
+                  className={`w-3 h-3 rounded-full transition-colors ${
+                    index === currentPodcastSlide ? 'bg-[#1fc9d5]' : 'bg-gray-300'
+                  }`}
+                  onClick={() => setCurrentPodcastSlide(index)}
+                  aria-label={`Go to podcast ${index + 1}`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -324,7 +522,7 @@ function HomePage() {
           <div className="hidden md:flex items-center justify-center relative max-w-6xl mx-auto">
             {/* Left navigation button */}
             <button 
-              onClick={prevSlide} 
+              onClick={prevTeamSlide} 
               className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-[#1fc9d5] hover:bg-[#19b6c1] text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors shadow-md"
               aria-label="Previous team member"
             >
@@ -372,15 +570,17 @@ function HomePage() {
                       >
                         <i className="fab fa-twitter text-2xl"></i>
                       </a>
-                      <a 
-                        href={member.linkedin} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-gray-600 hover:text-[#1fc9d5] transition-colors"
-                        aria-label={`${member.name}'s LinkedIn`}
-                      >
-                        <i className="fab fa-linkedin text-2xl"></i>
-                      </a>
+                      {member.linkedin && (
+                        <a 
+                          href={member.linkedin} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-gray-600 hover:text-[#1fc9d5] transition-colors"
+                          aria-label={`${member.name}'s LinkedIn`}
+                        >
+                          <i className="fab fa-linkedin text-2xl"></i>
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -389,7 +589,7 @@ function HomePage() {
             
             {/* Right navigation button */}
             <button 
-              onClick={nextSlide} 
+              onClick={nextTeamSlide} 
               className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-[#1fc9d5] hover:bg-[#19b6c1] text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors shadow-md"
               aria-label="Next team member"
             >
@@ -440,15 +640,17 @@ function HomePage() {
                       >
                         <i className="fab fa-twitter text-xl sm:text-2xl"></i>
                       </a>
-                      <a 
-                        href={member.linkedin} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-gray-600 hover:text-[#1fc9d5] transition-colors"
-                        aria-label={`${member.name}'s LinkedIn`}
-                      >
-                        <i className="fab fa-linkedin text-xl sm:text-2xl"></i>
-                      </a>
+                      {member.linkedin && (
+                        <a 
+                          href={member.linkedin} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-gray-600 hover:text-[#1fc9d5] transition-colors"
+                          aria-label={`${member.name}'s LinkedIn`}
+                        >
+                          <i className="fab fa-linkedin text-xl sm:text-2xl"></i>
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -458,7 +660,7 @@ function HomePage() {
             {/* Navigation buttons below for mobile/tablet */}
             <div className="flex justify-center space-x-4 mb-4">
               <button 
-                onClick={prevSlide} 
+                onClick={prevTeamSlide} 
                 className="bg-[#1fc9d5] hover:bg-[#19b6c1] text-white w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-colors shadow-md"
                 aria-label="Previous team member"
               >
@@ -466,7 +668,7 @@ function HomePage() {
               </button>
               
               <button 
-                onClick={nextSlide} 
+                onClick={nextTeamSlide} 
                 className="bg-[#1fc9d5] hover:bg-[#19b6c1] text-white w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-colors shadow-md"
                 aria-label="Next team member"
               >
@@ -505,55 +707,58 @@ function HomePage() {
   );
 }
 
+
+
+
 const teamMembers = [
   {
     name: "Mercy Thaddeus",
     role: "Co-Founder",
     image: teamimg1,
-    twitter: "https://twitter.com/mercythaddeus",
-    linkedin: "https://linkedin.com/in/mercythaddeus"
+    twitter: "https://x.com/global_techgirl",
+    linkedin: "http://linkedin.com/in/mercythaddeus"
   },
   {
     name: "Boluwatife (Ebenezer) Majoyeogbe",
     role: "Founder",
     image: teamImg4,
-    twitter: "https://twitter.com/boluwatifeebenezer",
-    linkedin: "https://linkedin.com/in/boluwatifeebenezer"
+    twitter: "https://x.com/boluwatifeeben2",
+    linkedin: "http://linkedin.com/in/boluwatife-majoyeogbe-b154b1147"
   },
   {
     name: "Daniel Abidoye",
     role: "Designer",
     image: teamimg2,
-    twitter: "https://twitter.com/johntoluwalope",
-    linkedin: "https://linkedin.com/in/johntoluwalope"
+    twitter: "https://x.com/DAbidoye55950",
+    linkedin: null
   },
   {
     name: "Toluwalope Idowu",
     role: "Project Manager",
     image: teamimg3,
-    twitter: "https://twitter.com/toluwalopeidowu",
-    linkedin: "https://linkedin.com/in/toluwalopeidowu"
+    twitter: "https://x.com/toluwalopeidowu",
+    linkedin: "http://linkedin.com/in/toluwalopeidowu"
   },
   {
     name: "Shukurat Akanbi",
     role: "Program Coordinator",
     image: teamImg5,
-    twitter: "https://twitter.com/blessingfaith",
-    linkedin: "https://linkedin.com/in/blessingfaith"
+    twitter: "https://x.com/teh_mmyh",
+    linkedin: "http://linkedin.com/in/akanbi-shukurat"
   },
   {
     name: "David Thaddeus",
     role: "Software Developer",
     image: davidImg,
-    twitter: "https://twitter.com/davidthaddeus",
-    linkedin: "https://linkedin.com/in/davidthaddeus"
+    twitter: "https://x.com/TDavelife",
+    linkedin: "https://www.linkedin.com/in/david-thaddeus"
   },
   {
     name: "Esther Afolabi",
     role: "Social Media Manager",
     image: teamImg6,
-    twitter: "https://twitter.com/estherafolabi",
-    linkedin: "https://linkedin.com/in/estherafolabi"
+    twitter: "https://x.com/oluwabusolami_a",
+    linkedin: "http://linkedin.com/in/estherafolabi"
   }
 ];
 
