@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { sendContactEmail } from '../utils/emailService';
+import Toast from '../components/Toast';
 
 function JoinUsPage() {
   const [formData, setFormData] = useState({
@@ -6,6 +8,12 @@ function JoinUsPage() {
     email: '',
     subject: '',
     message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toast, setToast] = useState({
+    isVisible: false,
+    message: '',
+    type: 'success'
   });
 
   const handleInputChange = (e) => {
@@ -16,10 +24,86 @@ function JoinUsPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
+    
+    // Client-side validation
+    const { name, email, subject, message } = formData;
+    
+    if (!name.trim() || name.trim().length < 2) {
+      setToast({
+        isVisible: true,
+        message: 'Please enter a valid name (at least 2 characters).',
+        type: 'error'
+      });
+      return;
+    }
+    
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setToast({
+        isVisible: true,
+        message: 'Please enter a valid email address.',
+        type: 'error'
+      });
+      return;
+    }
+    
+    if (!subject.trim() || subject.trim().length < 5) {
+      setToast({
+        isVisible: true,
+        message: 'Please enter a subject (at least 5 characters).',
+        type: 'error'
+      });
+      return;
+    }
+    
+    if (!message.trim() || message.trim().length < 10) {
+      setToast({
+        isVisible: true,
+        message: 'Please enter a message (at least 10 characters).',
+        type: 'error'
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      const result = await sendContactEmail(formData);
+      
+      if (result.success) {
+        setToast({
+          isVisible: true,
+          message: result.message,
+          type: 'success'
+        });
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          subject: '',
+          message: ''
+        });
+      } else {
+        setToast({
+          isVisible: true,
+          message: result.message,
+          type: 'error'
+        });
+      }
+    } catch (error) {
+      setToast({
+        isVisible: true,
+        message: 'An unexpected error occurred. Please try again.',
+        type: 'error'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const closeToast = () => {
+    setToast(prev => ({ ...prev, isVisible: false }));
   };
 
   return (
@@ -123,11 +207,14 @@ function JoinUsPage() {
               
               {/* Form Body */}
               <div className="p-6">
+                <div className="mb-4 text-sm text-gray-600 font-raleway">
+                  <span className="text-red-500">*</span> Required fields
+                </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="group">
                       <label className="block text-sm font-semibold text-gray-700 mb-2 font-raleway">
-                        <i className="fas fa-user mr-2 text-[#1fc9d5]"></i>Full Name
+                        <i className="fas fa-user mr-2 text-[#1fc9d5]"></i>Full Name <span className="text-red-500">*</span>
                       </label>
                       <input 
                         type="text" 
@@ -136,11 +223,14 @@ function JoinUsPage() {
                         onChange={handleInputChange}
                         className="w-full px-3 py-2 rounded-lg border-2 border-gray-200 focus:border-[#1fc9d5] focus:outline-none transition-colors duration-300 text-gray-800 font-raleway group-hover:border-[#1fc9d5] group-hover:border-opacity-50"
                         placeholder="Enter your full name"
+                        required
+                        minLength="2"
+                        maxLength="50"
                       />
                     </div>
                     <div className="group">
                       <label className="block text-sm font-semibold text-gray-700 mb-2 font-raleway">
-                        <i className="fas fa-envelope mr-2 text-[#1fc9d5]"></i>Email Address
+                        <i className="fas fa-envelope mr-2 text-[#1fc9d5]"></i>Email Address <span className="text-red-500">*</span>
                       </label>
                       <input 
                         type="email" 
@@ -149,12 +239,14 @@ function JoinUsPage() {
                         onChange={handleInputChange}
                         className="w-full px-3 py-2 rounded-lg border-2 border-gray-200 focus:border-[#1fc9d5] focus:outline-none transition-colors duration-300 text-gray-800 font-raleway group-hover:border-[#1fc9d5] group-hover:border-opacity-50"
                         placeholder="Enter your email address"
+                        required
+                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                       />
                     </div>
                   </div>
                   <div className="group">
                     <label className="block text-sm font-semibold text-gray-700 mb-2 font-raleway">
-                      <i className="fas fa-tag mr-2 text-[#1fc9d5]"></i>Subject
+                      <i className="fas fa-tag mr-2 text-[#1fc9d5]"></i>Subject <span className="text-red-500">*</span>
                     </label>
                     <input 
                       type="text" 
@@ -163,11 +255,14 @@ function JoinUsPage() {
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 rounded-lg border-2 border-gray-200 focus:border-[#1fc9d5] focus:outline-none transition-colors duration-300 text-gray-800 font-raleway group-hover:border-[#1fc9d5] group-hover:border-opacity-50"
                       placeholder="What would you like to discuss?"
+                      required
+                      minLength="5"
+                      maxLength="100"
                     />
                   </div>
                   <div className="group">
                     <label className="block text-sm font-semibold text-gray-700 mb-2 font-raleway">
-                      <i className="fas fa-comment mr-2 text-[#1fc9d5]"></i>Message
+                      <i className="fas fa-comment mr-2 text-[#1fc9d5]"></i>Message <span className="text-red-500">*</span>
                     </label>
                     <textarea 
                       rows="4" 
@@ -176,6 +271,9 @@ function JoinUsPage() {
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 rounded-lg border-2 border-gray-200 focus:border-[#1fc9d5] focus:outline-none transition-colors duration-300 text-gray-800 font-raleway resize-none group-hover:border-[#1fc9d5] group-hover:border-opacity-50"
                       placeholder="Tell us more about how you'd like to get involved..."
+                      required
+                      minLength="10"
+                      maxLength="1000"
                     ></textarea>
                   </div>
                   
@@ -183,11 +281,21 @@ function JoinUsPage() {
                   <div className="text-center pt-2">
                     <button 
                       type="submit" 
-                      className="group relative inline-flex items-center justify-center px-6 py-3 text-base font-bold text-white bg-gradient-to-r from-[#1fc9d5] to-[#19b6c1] rounded-full hover:from-[#19b6c1] hover:to-[#1fc9d5] transition-all duration-300 transform hover:scale-105 hover:shadow-lg font-raleway"
+                      disabled={isSubmitting}
+                      className="group relative inline-flex items-center justify-center px-6 py-3 text-base font-bold text-white bg-gradient-to-r from-[#1fc9d5] to-[#19b6c1] rounded-full hover:from-[#19b6c1] hover:to-[#1fc9d5] transition-all duration-300 transform hover:scale-105 hover:shadow-lg font-raleway disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <span className="relative z-10 flex items-center">
-                        <i className="fas fa-paper-plane mr-2"></i>
-                        Send Message
+                        {isSubmitting ? (
+                          <>
+                            <i className="fas fa-spinner fa-spin mr-2"></i>
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            <i className="fas fa-paper-plane mr-2"></i>
+                            Send Message
+                          </>
+                        )}
                       </span>
                       <div className="absolute inset-0 bg-white bg-opacity-20 rounded-full transform scale-0 group-hover:scale-100 transition-transform duration-300"></div>
                     </button>
@@ -198,6 +306,14 @@ function JoinUsPage() {
           </div>
         </div>
       </div>
+      
+      {/* Toast Notification */}
+      <Toast 
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={closeToast}
+      />
     </div>
   );
 }

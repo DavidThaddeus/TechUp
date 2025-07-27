@@ -1,7 +1,73 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { sendNewsletterSignup } from '../utils/emailService';
+import Toast from './Toast';
 
 function Footer() {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toast, setToast] = useState({
+    isVisible: false,
+    message: '',
+    type: 'success'
+  });
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Client-side validation
+    if (!email.trim()) {
+      setToast({
+        isVisible: true,
+        message: 'Please enter your email address.',
+        type: 'error'
+      });
+      return;
+    }
+    
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setToast({
+        isVisible: true,
+        message: 'Please enter a valid email address.',
+        type: 'error'
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      const result = await sendNewsletterSignup(email);
+      
+      if (result.success) {
+        setToast({
+          isVisible: true,
+          message: result.message,
+          type: 'success'
+        });
+        setEmail(''); // Reset email field
+      } else {
+        setToast({
+          isVisible: true,
+          message: result.message,
+          type: 'error'
+        });
+      }
+    } catch (error) {
+      setToast({
+        isVisible: true,
+        message: 'An unexpected error occurred. Please try again.',
+        type: 'error'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const closeToast = () => {
+    setToast(prev => ({ ...prev, isVisible: false }));
+  };
+
   return (
     <footer className="bg-black text-white py-8 sm:py-12 md:py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -67,18 +133,26 @@ function Footer() {
             <p className="text-sm sm:text-base mb-4 sm:mb-6 text-gray-300 font-raleway leading-relaxed">
               Stay updated with our latest news and events.
             </p>
-            <form className="flex flex-col sm:flex-row gap-2 sm:gap-0 max-w-md mx-auto sm:mx-0">
+            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 sm:gap-0 max-w-md mx-auto sm:mx-0">
               <input 
                 type="email" 
                 placeholder="Your email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="px-3 py-1.5 rounded-lg sm:rounded-l-lg sm:rounded-r-none text-gray-800 w-full text-sm focus:outline-none focus:ring-2 focus:ring-[#1fc9d5] transition-all duration-300 font-raleway"
                 required
+                disabled={isSubmitting}
               />
               <button 
                 type="submit" 
-                className="bg-[#1fc9d5] hover:bg-[#19b6c1] text-white px-3 py-1.5 rounded-lg sm:rounded-r-lg sm:rounded-l-none transition-all duration-300 transform hover:scale-105 font-montserrat font-medium text-sm"
+                disabled={isSubmitting}
+                className="bg-[#1fc9d5] hover:bg-[#19b6c1] text-white px-3 py-1.5 rounded-lg sm:rounded-r-lg sm:rounded-l-none transition-all duration-300 transform hover:scale-105 font-montserrat font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <i className="fas fa-paper-plane"></i>
+                {isSubmitting ? (
+                  <i className="fas fa-spinner fa-spin"></i>
+                ) : (
+                  <i className="fas fa-paper-plane"></i>
+                )}
               </button>
             </form>
           </div>
@@ -91,6 +165,14 @@ function Footer() {
           </p>
         </div>
       </div>
+      
+      {/* Toast Notification */}
+      <Toast 
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={closeToast}
+      />
     </footer>
   );
 }
